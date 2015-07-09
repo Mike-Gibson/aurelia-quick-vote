@@ -8,14 +8,11 @@ function reportChange(event){
 }
 
 // this task wil watch for changes
-// to js, html, and css files and call the
+// to ts, html, and css files and call the
 // reportChange method. Also, by depending on the
 // serve task, it will instantiate a browserSync session
-gulp.task('watch', ['serve'], function() {
-  gulp.watch(paths.source, ['build-system', browserSync.reload]).on('change', reportChange);
-  
-  gulp.watch(paths.typescript, ['build-system', browserSync.reload]).on('change', reportChange);
-  
+gulp.task('watch', ['serve'], function() {  
+  gulp.watch(paths.source, ['build-system', browserSync.reload]).on('change', reportChange);  
   gulp.watch(paths.html, ['build-html', browserSync.reload]).on('change', reportChange);
   gulp.watch(paths.style, browserSync.reload).on('change', reportChange);
 });

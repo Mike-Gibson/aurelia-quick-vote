@@ -8,31 +8,29 @@ var paths = require('../paths');
 var compilerOptions = require('../babel-options');
 var assign = Object.assign || require('object.assign');
 var ts = require('gulp-typescript');
-var tsconfig =  require('../../tsconfig.json');
+var replace = require('gulp-replace');
 
-// Added custom step to build TypeScript
-gulp.task('build-typescript', function () {
-  var tsProject = ts.createProject('tsconfig.json', {
-    typescript: require('typescript')
-  });
-  
-  return tsProject.src()
-    .pipe(plumber())
-    .pipe(ts(tsProject))
-    .pipe(gulp.dest(paths.output));
+var tsProject = ts.createProject({
+    noExternalResolve: true,
+    noLib: false,
+    typescript: require('typescript'), // version 1.5.0-beta
+    target: 'es6',
+    experimentalDecorators: true
 });
 
-// transpiles changed es6 files to SystemJS format
+// transpiles changed typescript to es6 to SystemJS format
 // the plumber() call prevents 'pipe breaking' caused
 // by errors from other gulp plugins
 // https://www.npmjs.com/package/gulp-plumber
-gulp.task('build-system', ['build-typescript'], function () {
+gulp.task('build-system', function () {
   return gulp.src(paths.source)
     .pipe(plumber())
-    .pipe(changed(paths.output, {extension: '.js'}))
-    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(sourcemaps.init())
+    .pipe(ts(tsProject))
+    .pipe(replace(/Object.defineProperty\(([^,]*), "name", { value: "\1", configurable: true }\);/, ''))
     .pipe(to5(assign({}, compilerOptions, {modules:'system'})))
-    .pipe(sourcemaps.write({includeContent: true}))
+    .pipe(replace(/undefined.__decorate/, '__decorate'))
+    .pipe(sourcemaps.write({includeContent: false, sourceRoot: '/' + paths.root }))
     .pipe(gulp.dest(paths.output));
 });
 

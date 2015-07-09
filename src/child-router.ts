@@ -1,4 +1,5 @@
 export class ChildRouter{
+  router: any;
   heading = 'Child Router';
 
   configureRouter(config, router){

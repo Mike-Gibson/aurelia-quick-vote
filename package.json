@@ -1,27 +1,18 @@
 {
-  "name": "aurelia-skeleton-navigation",
-  "version": "0.14.0",
-  "description": "A starter kit for building a standard navigation-style app with Aurelia.",
-  "keywords": [
-    "aurelia",
-    "navigation",
-    "skeleton"
-  ],
-  "homepage": "http://aurelia.io",
-  "bugs": {
-    "url": "https://github.com/aurelia/skeleton-navigation/issues"
-  },
-  "license": "MIT",
-  "author": "Rob Eisenberg <rob@bluespire.com> (http://robeisenberg.com/)",
-  "main": "dist/commonjs/index.js",
+  "name": "QuickVote",
+  "version": "0.0.0",
+  "description": "Toy project to try out aurelia and TypeScript",
+  "keywords": [],
   "repository": {
     "type": "git",
-    "url": "http://github.com/aurelia/skeleton-navigation"
+    "url": "https://github.com/Mike-Gibson/aurelia-quick-vote"
   },
+  "license": "MIT",
   "devDependencies": {
     "aurelia-tools": "^0.1.3",
     "browser-sync": "^1.8.1",
     "conventional-changelog": "0.0.11",
+    "core-js": "^0.9.5",
     "del": "^1.1.0",
     "gulp": "^3.8.10",
     "gulp-babel": "^5.1.0",
@@ -30,6 +21,7 @@
     "gulp-jshint": "^1.9.0",
     "gulp-plumber": "^0.6.6",
     "gulp-protractor": "^0.0.12",
+    "gulp-replace": "^0.5.3",
     "gulp-sourcemaps": "^1.3.0",
     "gulp-typescript": "^2.7.8",
     "gulp-yuidoc": "^0.1.2",
@@ -44,20 +36,20 @@
     "object.assign": "^1.0.3",
     "require-dir": "^0.1.0",
     "run-sequence": "^1.0.2",
-    "typescript": "1.5.0-beta",
+    "typescript": "github:Microsoft/TypeScript",
     "vinyl-paths": "^1.0.0",
     "yargs": "^2.1.1"
   },
   "jspm": {
     "dependencies": {
       "aurelia-animator-css": "github:aurelia/animator-css@^0.13.0",
-      "aurelia-binding": "github:aurelia/binding@^0.8.0",
+      "aurelia-binding": "github:aurelia/binding@^0.8.1",
       "aurelia-bootstrapper": "github:aurelia/bootstrapper@^0.14.0",
       "aurelia-dependency-injection": "github:aurelia/dependency-injection@^0.9.0",
-      "aurelia-event-aggregator": "github:aurelia/event-aggregator@^0.6.0",
-      "aurelia-framework": "github:aurelia/framework@^0.13.1",
+      "aurelia-event-aggregator": "github:aurelia/event-aggregator@^0.6.1",
+      "aurelia-framework": "github:aurelia/framework@^0.13.2",
       "aurelia-history": "github:aurelia/history@^0.6.0",
-      "aurelia-history-browser": "github:aurelia/history-browser@^0.6.0",
+      "aurelia-history-browser": "github:aurelia/history-browser@^0.6.1",
       "aurelia-http-client": "github:aurelia/http-client@^0.10.0",
       "aurelia-loader": "github:aurelia/loader@^0.8.0",
       "aurelia-loader-default": "github:aurelia/loader-default@^0.9.0",
@@ -65,9 +57,9 @@
       "aurelia-metadata": "github:aurelia/metadata@^0.7.0",
       "aurelia-path": "github:aurelia/path@^0.8.0",
       "aurelia-route-recognizer": "github:aurelia/route-recognizer@^0.6.0",
-      "aurelia-router": "github:aurelia/router@^0.10.0",
+      "aurelia-router": "github:aurelia/router@^0.10.1",
       "aurelia-task-queue": "github:aurelia/task-queue@^0.6.0",
-      "aurelia-templating": "github:aurelia/templating@^0.13.1",
+      "aurelia-templating": "github:aurelia/templating@^0.13.2",
       "aurelia-templating-binding": "github:aurelia/templating-binding@^0.13.0",
       "aurelia-templating-resources": "github:aurelia/templating-resources@^0.13.0",
       "aurelia-templating-router": "github:aurelia/templating-router@^0.14.0",

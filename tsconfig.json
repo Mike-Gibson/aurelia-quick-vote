@@ -1,16 +1,8 @@
 {
-	"version": "1.5.0",
-    "compilerOptions": {
-        "target": "es6",
-		"sourceMap": false,
-		"emitDecoratorMetadata": true,
-        "declaration": false,
-        "noImplicitAny": false,
-        "removeComments": true,
-        "noLib": false,
-		"outDir": ""
-    },
-	"files": [
-		"src/app.ts"
-	]	
+	"version": "1.5.0-beta",
+	"compilerOptions": {
+		"target": "ES6",
+		"experimentalDecorators": true
+	},
+	"NOTES": "This tsconfig file is required for VS code to be able to find .d.ts files, as the syntax uses ES6-style imports"
 }
