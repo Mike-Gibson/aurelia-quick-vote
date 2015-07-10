@@ -1,15 +1,15 @@
 var path = require('path');
 
 var appRoot = 'src/';
-var outputRoot = 'dist/';
+var outputRoot = 'dist';
 
 module.exports = {
   root: appRoot,
   source: [
-    appRoot + '**/*.ts',
+    appRoot + 'Client/**/*.ts',
     'jspm_packages/**/*.d.ts' 
   ],
-  html: appRoot + '**/*.html',
+  html: appRoot + 'Client/**/*.html',
   style: 'styles/**/*.css',
   output: outputRoot,
   doc:'./doc',
