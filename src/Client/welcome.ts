@@ -8,13 +8,16 @@ export class Welcome{
   
   private http: HttpClient;
 
-  constructor(http: HttpClient) {
-    this.http = http;
+  constructor() {
+    this.http = new HttpClient().configure(x=> {
+      x.withBaseUrl('http://localhost:9001/');
+      x.withHeader('content-type', 'application/json')
+    });
     this.name = '';
   }
   
   login() {
-    this.http.post('http://localhost:5000/api/login', 'mike').then(response => {
+    this.http.post('api/login/login', '"' + this.name + '"').then(response => {
       alert('YAY')
     }, error => {
       alert('boo :(');
