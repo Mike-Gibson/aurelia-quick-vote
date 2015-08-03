@@ -1,4 +1,5 @@
 System.config({
+  "baseURL": "/",
   "transpiler": "babel",
   "babelOptions": {
     "optional": [
@@ -8,7 +9,7 @@ System.config({
     ]
   },
   "paths": {
-    "*": "dist/*.js",
+    "*": "/*.js",
     "github:*": "jspm_packages/github/*.js",
     "npm:*": "jspm_packages/npm/*.js",
     "custom": "src/client/*.js"

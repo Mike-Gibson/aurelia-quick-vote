@@ -10,7 +10,7 @@ export class SignalRConnection {
       throw new Error('already connected');
     }
     
-    var connection = $.hubConnection("http://localhost:9001/signalr", { useDefaultPath: false });
+    var connection = $.hubConnection("/signalr", { useDefaultPath: false });
     var hub = connection.createHubProxy('voting');
     
     hub.on('userConnected', function(name) {
