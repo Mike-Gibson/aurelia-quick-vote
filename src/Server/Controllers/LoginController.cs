@@ -3,8 +3,7 @@ using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Infrastructure;
 using WebAPIApplication.Hubs;
-
-using  Microsoft.Framework.Logging;
+using Microsoft.Framework.Logging;
 
 namespace WebAPIApplication.Controllers
 {

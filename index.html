@@ -17,29 +17,10 @@
     
     <!-- TODO: Use system.js? -->
     <script src="jspm_packages/github/components/jquery@2.1.4/jquery.min.js"></script>
-    <script src="src/CLient/Vendor/jquery.signalR.min.js"></script>
+    <script src="src/Client/Vendor/jquery.signalR.min.js"></script>
     
     <script>
       System.import('aurelia-bootstrapper');
-    </script>
-    
-    
-    <script>
-        $(function () {
-            
-            //var connection = $.hubConnection();
-            var connection = $.hubConnection("http://localhost:9001/signalr", { useDefaultPath: false });
-            var hubProxy = connection.createHubProxy('voting');
-            
-            hubProxy.on('userLoggedIn', function(userName, message) {
-                console.log(userName + ' ' + message);
-            });
-            
-            connection.start()
-                .done(function(){ alert('Now connected, connection ID=' + connection.id); })
-                .fail(function(){ alert('Could not connect'); });
-            
-        });
     </script>
     
   </body>

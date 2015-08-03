@@ -1,0 +1,16 @@
+<template>
+  <section class="au-animate">
+    <h2>Vote</h2>
+
+    
+
+    <form role="form" submit.delegate="vote()">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" value.bind="name" class="form-control" id="name" placeholder="Enter your name">
+      </div>
+      
+      <button type="submit" class="btn btn-default">Login</button>
+    </form>
+  </section>
+</template>

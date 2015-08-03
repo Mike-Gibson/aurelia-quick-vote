@@ -10,7 +10,8 @@ System.config({
   "paths": {
     "*": "dist/*.js",
     "github:*": "jspm_packages/github/*.js",
-    "npm:*": "jspm_packages/npm/*.js"
+    "npm:*": "jspm_packages/npm/*.js",
+    "custom": "src/client/*.js"
   }
 });
 
@@ -42,8 +43,10 @@ System.config({
     "bootstrap": "github:twbs/bootstrap@3.3.4",
     "core-js": "npm:core-js@0.9.18",
     "css": "github:systemjs/plugin-css@0.1.12",
+    "dfrencham/ms-signalr-client": "github:dfrencham/ms-signalr-client@2.2.1",
     "font-awesome": "npm:font-awesome@4.3.0",
     "jquery": "github:components/jquery@2.1.4",
+    "signalrclient": "custom:vendor",
     "github:aurelia/animator-css@0.13.0": {
       "aurelia-templating": "github:aurelia/templating@0.13.2"
     },
@@ -150,6 +153,9 @@ System.config({
       "aurelia-task-queue": "github:aurelia/task-queue@0.6.0",
       "core-js": "npm:core-js@0.9.18"
     },
+    "github:dfrencham/ms-signalr-client@2.2.1": {
+      "jquery": "npm:jquery@3.0.0-alpha1"
+    },
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
@@ -245,6 +251,9 @@ System.config({
     },
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"
+    },
+    "npm:jquery@3.0.0-alpha1": {
+      "process": "github:jspm/nodelibs-process@0.1.1"
     },
     "npm:os-browserify@0.1.2": {
       "os": "github:jspm/nodelibs-os@0.1.0"

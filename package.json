@@ -65,6 +65,7 @@
       "aurelia-templating-router": "github:aurelia/templating-router@^0.14.0",
       "bootstrap": "github:twbs/bootstrap@^3.3.4",
       "css": "github:systemjs/plugin-css@^0.1.11",
+      "dfrencham/ms-signalr-client": "github:dfrencham/ms-signalr-client@^2.2.1",
       "font-awesome": "npm:font-awesome@^4.3.0",
       "jquery": "github:components/jquery@^2.1.4"
     },

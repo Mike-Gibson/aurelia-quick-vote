@@ -9,11 +9,11 @@ export class App {
   
   configureRouter(config: RouterConfiguration, router: Router){    
     config.map([
-      { route: ['','welcome'], name: 'welcome',      moduleId: './welcome',      nav: true, title:'Welcome' },
-      { route: 'child-router', name: 'child-router', moduleId: './child-router', nav: true, title:'Child Router' }
+      { route: ['','login'],   name: 'login',        moduleId: './login',        nav: false, title: 'Login' },
+      { route: ['voting'],     name: 'voting',       moduleId: './voting',       nav: false, title: 'Vote' }
     ]);
 
-    (<any>router).title = "Aurelia";
+    (<any>router).title = "Quick Vote";
 
     this.router = router;
   }
