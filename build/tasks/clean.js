@@ -9,7 +9,7 @@ gulp.task('clean', function() {
     paths.output + '**/*.js', 
     '!' + paths.output + 'config.js',
     '!' + paths.output + 'jspm_packages/**/*.js',
-    '!' + paths.output + 'Scripts/**/.js', 
+    '!' + paths.output + 'Scripts/**/*.js', 
     ])
     .pipe(vinylPaths(del));
 });

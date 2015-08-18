@@ -1,14 +1,11 @@
-import {computedFrom} from 'aurelia-framework';
 import {inject} from 'aurelia-framework';
-import http from 'common/http';
 import {Router} from 'aurelia-router';
-
-import SignalRConnection from 'common/signalr'
+import {SignalRConnection} from 'common/signalr'
 
 @inject(SignalRConnection, Router)
 export class Login{
   name: string;
-  private signalrConnection: any
+  private signalrConnection: SignalRConnection
   private router: Router; 
   
   constructor(signalrConnection, router: Router) {
@@ -17,8 +14,16 @@ export class Login{
     this.name = '';
   }
   
+  canActivate() {
+    return !this.signalrConnection.isLoggedIn();
+  }
+  
   login() {
-    this.signalrConnection.login(this.name);
-    this.router.navigate('voting');
+    this.signalrConnection
+      .login(this.name)
+      .then(() => {        
+        this.router.navigate('voting');
+      })
+      .catch(error => alert('Could not connect :( - ' + error));
   }  
 }

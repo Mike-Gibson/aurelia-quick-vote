@@ -1,4 +1,6 @@
 <template>
+  <require from="./routeAuthenticationFilter"></require>
+  
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -15,8 +17,20 @@
 
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li repeat.for="row of router.navigation" class="${row.isActive ? 'active' : ''}">
+        <li repeat.for="row of router.navigation | routeAuthenticationFilter: isLoggedIn" class="${row.isActive ? 'active' : ''}">
           <a data-toggle="collapse" data-target="#bs-example-navbar-collapse-1.in" href.bind="row.href">${row.title}</a>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown" show.bind="isLoggedIn">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span>${name}</span><b class="caret"></b>
+            &nbsp;
+            </a>
+          <ul class="dropdown-menu">
+            <li><a href="#" click.trigger="logout()">Logout</a></li>
+          </ul>
         </li>
       </ul>
 
