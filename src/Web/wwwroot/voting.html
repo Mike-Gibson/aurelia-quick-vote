@@ -1,16 +1,144 @@
 <template>
-  <section class="au-animate">
-    <h2>Vote</h2>
-
+  <div class="app-row" style="top: 0; bottom: 0">
     
-
-    <form role="form" submit.delegate="vote()">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" value.bind="name" class="form-control" id="name" placeholder="Enter your name">
+    <div class="app-col padded" style="left: 0; width: 75%">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <h3>Current Question</h3>
+          ${question.title}
+          
+          <br />
+          Active: ${question.active}
+          
+          <br />
+          
+          <style>
+            .results {
+              list-style: none;
+              animation-delay:50ms;
+            }
+            
+            .results div {
+              display: inline-block; 
+              width: 200px; 
+              border: 1px solid red;
+              border-radius: 4px;
+              margin: 4px;
+              padding: 6px;
+            }
+            
+            .animation-fade.au-enter {
+              opacity: 0 !important;
+            }
+            
+            .animation-fade.au-enter-active {
+              animation: fadeIn 2s;
+            }
+            
+            .animation-fade.au-leave-active {
+              animation: fadeOut 2s;
+            }
+            
+            /* CSS3-Animations */            
+            @keyframes fadeIn {
+                0%   { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            @keyframes fadeOut {
+                0%   { opacity: 1; }
+                100% { opacity: 0; }
+            }
+          </style>
+          
+          <div show.bind="!question.active">
+            <p>
+              <b>Results</b>
+            </p>
+            
+            <div class="results au-stagger">
+              <div repeat.for="result of question.results" class="au-animate animation-fade">
+                <span>${result.name}</span>
+                <br />
+                <span>${result.result}</span>
+              </div>              
+            </div>
+          </div>
+        </div>
       </div>
       
-      <button type="submit" class="btn btn-default">Login</button>
-    </form>
-  </section>
+      <form role="form" submit.delegate="submitVote()">
+        <div show.bind="question.active">
+          <div class="form-group">
+            <label for="newVote">My Vote</label>
+            <input type="text" value.bind="newVote" class="form-control" id="newVote" placeholder="Enter your vote">
+          </div>
+          
+          <button type="submit" class="btn btn-default" disabled.bind="newVote === '' || newVote === currentVote">
+            ${currentVote === '' ? 'Vote' : 'Update Vote'}
+          </button>
+        </div>
+      </form>
+      
+      <button click.delegate="temp_endVote()">TEMP - end vote</button>
+      <button click.delegate="temp_startVote()">TEMP - start vote</button>
+      
+    </div>
+    
+    <style>
+      ul.user-list {
+        overflow: auto;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        background-color: white;
+      }
+      
+      ul.user-list li {
+        
+        margin: 0px;
+        border-bottom: 1px solid #ddd;
+        
+      }
+      
+      ul.user-list li > .vote {
+        display: inline-block;        
+        height: 100%;
+        margin-left: 12px;
+        background-color: green;
+        border-radius: 4px;
+        width: 20px;
+      }
+      
+      ul.user-list li > .vote-voted {        
+        background-color: green;
+      }
+      
+      ul.user-list li > .vote-notvoted {        
+        background-color: orange;
+      }
+      
+      ul.user-list li > .name {
+        display: inline-block;
+        margin: 0px;
+        padding: 12px;
+      }  
+      
+    </style>
+    
+    <div class="app-col padded" style="width: 25%; right: 0">
+      
+      <div class="panel panel-default" style="height: 100%; overflow: hidden;">
+        <div class="panel-body scroll-y" style="height: 100%; padding: 0; background-color: #fefefe">
+          <ul class="user-list">
+            <li repeat.for="person of people">
+              <span class.bind="'vote ' + (person.hasVoted ? 'vote-voted' : 'vote-notvoted')">&nbsp;</span>
+              <span class="name">${person.name}</span>
+            </li>
+          </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+  
 </template>

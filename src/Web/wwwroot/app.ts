@@ -4,10 +4,17 @@ import 'bootstrap/css/bootstrap.css!';
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {RouterConfiguration, Redirect} from 'aurelia-router';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {LoggedInEvent} from 'common/events';
 import {SignalRConnection} from 'common/signalr';
 
+@inject(EventAggregator)
 export class App {
   router: Router;
+  
+  constructor(eventAggregator: EventAggregator) {
+    eventAggregator.subscribe(LoggedInEvent, this.loggedIn);
+  }
   
   configureRouter(config: RouterConfiguration, router: Router){
     config.title = "Quick Vote";
@@ -18,6 +25,10 @@ export class App {
     ]);
 
     this.router = router;
+  }
+  
+  private loggedIn = (event: LoggedInEvent) => {
+    this.router.navigate('voting');
   }
 }
 

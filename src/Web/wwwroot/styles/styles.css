@@ -33,6 +33,13 @@ body {
     overflow-y: auto;
 }
 
+.app-row, .app-col { overflow: hidden; position: absolute; }
+.app-row { left: 0; right: 0; }
+.app-col { top: 0; bottom: 0; }
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+.padded { padding: 15px; }
+
 section {
     margin: 0 20px;
 }

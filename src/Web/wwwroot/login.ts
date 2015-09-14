@@ -8,7 +8,7 @@ export class Login{
   private signalrConnection: SignalRConnection
   private router: Router; 
   
-  constructor(signalrConnection, router: Router) {
+  constructor(signalrConnection: SignalRConnection, router: Router) {
     this.signalrConnection = signalrConnection;
     this.router = router;
     this.name = '';
@@ -21,9 +21,9 @@ export class Login{
   login() {
     this.signalrConnection
       .login(this.name)
-      .then(() => {        
-        this.router.navigate('voting');
-      })
-      .catch(error => alert('Could not connect :( - ' + error));
+      .catch(error => {
+        alert('Could not connect :( - ' + error);
+        return null;
+      });
   }  
 }

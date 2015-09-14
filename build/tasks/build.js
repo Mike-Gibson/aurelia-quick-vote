@@ -30,7 +30,7 @@ gulp.task('build-system', function () {
     .pipe(replace(/Object.defineProperty\(([^,]*), "name", { value: "\1", configurable: true }\);/, ''))
     .pipe(to5(assign({}, compilerOptions, {modules:'system'})))
     .pipe(replace(/undefined.__decorate/, '__decorate'))
-    .pipe(sourcemaps.write({includeContent: false, sourceRoot: '/' + paths.root }))
+    .pipe(sourcemaps.write({includeContent: false, sourceRoot: paths.root }))
     .pipe(gulp.dest(paths.output));
 });
 

@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var paths = require('../paths');
-var browserSync = require('browser-sync');
 
 // outputs changes to files to the console
 function reportChange(event){
@@ -11,8 +10,8 @@ function reportChange(event){
 // to ts, html, and css files and call the
 // reportChange method. Also, by depending on the
 // serve task, it will instantiate a browserSync session
-gulp.task('watch', ['serve'], function() {  
-  gulp.watch(paths.source, ['build-system', browserSync.reload]).on('change', reportChange);  
-  gulp.watch(paths.html, browserSync.reload).on('change', reportChange);
-  gulp.watch(paths.style, browserSync.reload).on('change', reportChange);
+gulp.task('watch', function() {  
+  gulp.watch(paths.source, ['build-system']).on('change', reportChange);  
+  gulp.watch(paths.html).on('change', reportChange);
+  gulp.watch(paths.style).on('change', reportChange);
 });

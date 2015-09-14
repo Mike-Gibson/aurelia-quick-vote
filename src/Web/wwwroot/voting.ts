@@ -1,18 +1,148 @@
 import {computedFrom} from 'aurelia-framework';
 import {inject} from 'aurelia-framework';
 import http from 'common/http';
-
 import {SignalRConnection} from 'common/signalr'
+import * as events from 'common/events';
+import {EventAggregator} from 'aurelia-event-aggregator';
 
-@inject(SignalRConnection)
+@inject(SignalRConnection, EventAggregator)
 export class Voting {
+  
+  currentVote: string;
+  newVote: string;
+  question: IQuestion;
+  people: Array<IPerson>;
+  
   private signalr: SignalRConnection;
   
-  constructor(signalrConnection: SignalRConnection) {
+  constructor(signalrConnection: SignalRConnection, eventAggregator: EventAggregator) {
     this.signalr = signalrConnection
+    this.newVote = '';
+    this.currentVote = '';
+    
+    signalrConnection
+      .getCurrentStatus()
+      .then(status => {
+        this.question = { 
+          title: status.CurrentQuestion.Title, 
+          active: status.CurrentQuestion.Active, 
+          results: this.mapQuestionResults(status.CurrentQuestion.Results) 
+        };
+        
+        this.people = status.People.map(p => { return { name: p.Name, hasVoted: p.HasVoted }; });
+        this.sortPeople();
+        
+        if (status.MyCurrentVote !== null) {
+          this.currentVote = status.MyCurrentVote;
+          this.newVote = status.MyCurrentVote;
+        }
+      });
+    
+    eventAggregator.subscribe(events.UserConnectedEvent, this.userConnected);
+    eventAggregator.subscribe(events.UserDisconnectedEvent, this.userDisconnected);
+    eventAggregator.subscribe(events.UserVotedEvent, this.userVoted);
+    eventAggregator.subscribe(events.VoteEndedEvent, this.voteEnded);
+    eventAggregator.subscribe(events.VoteStartedEvent, this.voteStarted);
   }
   
-  vote() {
-    this.signalr.vote('TEST VOTE');
+  submitVote() {
+    this.signalr.vote(this.newVote).then(() => {
+      this.currentVote = this.newVote;
+    });
   }
+  
+  userConnected = (message: events.UserConnectedEvent) => {
+    var person = this.people.find(p => p.name === message.name);
+    
+    if (!person) {
+      this.people.push({name: message.name, hasVoted: false});
+      this.sortPeople();
+    }
+  }
+  
+  userDisconnected = (message: events.UserDisconnectedEvent) => {
+    var personIndex = this.people.reduce((prev, cur, index) => {
+      return (cur.name === message.name) ? index : prev;
+    }, -1);
+    
+    if (personIndex > -1) {
+      this.people.splice(personIndex, 1);
+    }
+  }
+  
+  userVoted = (message: events.UserVotedEvent) => {
+    var person = this.people.find(p => p.name === message.name);
+    
+    if (person) {
+      person.hasVoted = true;
+    }
+  }
+  
+  voteEnded = (message: events.VoteEndedEvent) => {
+    this.question.active = false;
+    this.question.results = this.mapQuestionResults(message.data);
+    
+    alert('vote ended... TODO - ' + JSON.stringify(message.data));
+  }
+  
+  voteStarted = (message: events.VoteStartedEvent) => {
+    this.question = {
+      title: message.questionTitle,
+      active: true,
+      results: []
+    };
+    this.people.forEach(p => p.hasVoted = false);
+    this.currentVote = '';
+    this.newVote = '';
+    
+    alert('vote started... TODO - ' + JSON.stringify(message));
+  }
+  
+  temp_endVote() {
+    this.signalr.endVote();
+  }
+  
+  temp_startVote() {
+    this.signalr.startVote('a new question - ' + new Date());
+  }
+  
+  private mapQuestionResults(results: any[]) {
+    return (results || []).map(data => { 
+      return {
+        name: data.Name,
+        result: data.Vote
+      };
+    }).sort((r1, r2) => {
+      if (!r1.result && !r2.result)
+        return r1.name.localeCompare(r2.name);
+      
+      if (r1.result && !r2.result)
+        return -1;
+        
+      if (!r1.result && r2.result)
+        return 1;
+        
+      return r1.result.localeCompare(r1.result);
+    });
+  }
+  
+  private sortPeople() {
+    this.people.sort((p1, p2) => p1.name.localeCompare(p2.name));
+  }
+}
+
+interface IQuestion {
+  title: string;
+  active: boolean;
+  results: Array<IQuestionResult>;
+}
+
+interface IQuestionResult {
+  name: string;
+  result: string;
+}
+
+interface IPerson {
+  name: string;
+  hasVoted: boolean;
 }
