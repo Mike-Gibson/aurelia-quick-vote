@@ -13,6 +13,17 @@ export class Voting {
   question: IQuestion;
   people: Array<IPerson>;
   
+  get status() {
+    var totalPeople = this.people.length;
+    var votedPeople = this.people.filter(p => p.hasVoted).length;
+    
+    return {
+      totalPeople: totalPeople,
+      votedPeople: votedPeople,
+      percentage: Math.round((votedPeople / totalPeople) * 100) + '%'
+    }
+  }
+  
   private signalr: SignalRConnection;
   
   constructor(signalrConnection: SignalRConnection, eventAggregator: EventAggregator) {
@@ -23,7 +34,7 @@ export class Voting {
     signalrConnection
       .getCurrentStatus()
       .then(status => {
-        this.question = { 
+        this.question = (status.CurrentQuestion === null) ? null : { 
           title: status.CurrentQuestion.Title, 
           active: status.CurrentQuestion.Active, 
           results: this.mapQuestionResults(status.CurrentQuestion.Results) 
@@ -81,8 +92,6 @@ export class Voting {
   voteEnded = (message: events.VoteEndedEvent) => {
     this.question.active = false;
     this.question.results = this.mapQuestionResults(message.data);
-    
-    alert('vote ended... TODO - ' + JSON.stringify(message.data));
   }
   
   voteStarted = (message: events.VoteStartedEvent) => {
@@ -94,8 +103,6 @@ export class Voting {
     this.people.forEach(p => p.hasVoted = false);
     this.currentVote = '';
     this.newVote = '';
-    
-    alert('vote started... TODO - ' + JSON.stringify(message));
   }
   
   temp_endVote() {
@@ -106,15 +113,17 @@ export class Voting {
     this.signalr.startVote('a new question - ' + new Date());
   }
   
-  private mapQuestionResults(results: any[]) {
-    return (results || []).map(data => { 
+  private mapQuestionResults(results: Array<IQuestionResult | { Name: string; Vote: string}>) : Array<IQuestionResult> {
+    var input = results || [];
+    
+    return input.map(data => { 
       return {
-        name: data.Name,
-        result: data.Vote
+        name: data['Name'] || data['name'],
+        result: data['Vote'] || data['result']
       };
     }).sort((r1, r2) => {
       if (!r1.result && !r2.result)
-        return r1.name.localeCompare(r2.name);
+        return (r1.name || '').localeCompare(r2.name);
       
       if (r1.result && !r2.result)
         return -1;
@@ -122,7 +131,7 @@ export class Voting {
       if (!r1.result && r2.result)
         return 1;
         
-      return r1.result.localeCompare(r1.result);
+      return (r1.result).localeCompare(r2.result);
     });
   }
   

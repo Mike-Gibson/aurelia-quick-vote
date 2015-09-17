@@ -3,51 +3,37 @@
     
     <div class="app-col padded" style="left: 0; width: 75%">
       <div class="panel panel-default">
-        <div class="panel-body">
-          <h3>Current Question</h3>
-          ${question.title}
+        <div class="panel-body" show.bind="question === null">
+          Waiting for the vote to be started...
+        </div>
+        
+        <div class="panel-body" show.bind="question !== null">
+          <h3>Question: ${question.title}</h3>          
           
           <br />
-          Active: ${question.active}
           
-          <br />
-          
-          <style>
-            .results {
-              list-style: none;
-              animation-delay:50ms;
-            }
+          <div show.bind="question.active">
+            <div class="progress" style="margin-bottom: 4px;">
+              <div class="progress-bar progress-bar-striped active" style.bind="{ width: status.percentage }" style="min-width: 2em;">
+                <span>${status.percentage}</span>
+              </div>
+            </div>
             
-            .results div {
+            <div class="text-center">
+              <strong>${status.votedPeople}</strong> votes out of <strong>${status.totalPeople}</strong>
+            </div>
+          </div>
+          
+          <br />
+          
+          <style>           
+            .results > div {
               display: inline-block; 
-              width: 200px; 
-              border: 1px solid red;
-              border-radius: 4px;
+              /*float: left;*/
+              min-width: 140px;
               margin: 4px;
-              padding: 6px;
-            }
-            
-            .animation-fade.au-enter {
-              opacity: 0 !important;
-            }
-            
-            .animation-fade.au-enter-active {
-              animation: fadeIn 2s;
-            }
-            
-            .animation-fade.au-leave-active {
-              animation: fadeOut 2s;
-            }
-            
-            /* CSS3-Animations */            
-            @keyframes fadeIn {
-                0%   { opacity: 0; }
-                100% { opacity: 1; }
-            }
-            @keyframes fadeOut {
-                0%   { opacity: 1; }
-                100% { opacity: 0; }
-            }
+              vertical-align: top;
+            }            
           </style>
           
           <div show.bind="!question.active">
@@ -55,11 +41,19 @@
               <b>Results</b>
             </p>
             
-            <div class="results au-stagger">
-              <div repeat.for="result of question.results" class="au-animate animation-fade">
-                <span>${result.name}</span>
-                <br />
-                <span>${result.result}</span>
+            <div class="results au-stagger">              
+              <div repeat.for="result of question.results" class="panel au-animate animation-fade ${ result.result ? 'panel-primary': 'panel-default' }">
+                <div class="panel-heading">
+                  ${result.name}
+                </div>
+                <div class="panel-body text-center">
+                  <span show.bind="result.result">
+                    ${result.result}
+                  </span>
+                  <span show.bind="!result.result" style="color: #AAA">
+                    <i>(no vote)</i>
+                  </span>                  
+                </div>
               </div>              
             </div>
           </div>

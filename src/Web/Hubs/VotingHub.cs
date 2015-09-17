@@ -1,8 +1,5 @@
-using System;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Framework.Logging;
 using System.Threading.Tasks;
 
@@ -11,99 +8,7 @@ namespace WebAPIApplication.Hubs
     [HubName("voting")]
     public class VotingHub : Hub
     {
-        public class UserInfo
-        {
-            public string Name { get; set; }
-            public string Vote { get; set; }    
-        }
-        
-        public class State
-        {
-            private readonly Dictionary<string, UserInfo> _users = new Dictionary<string, UserInfo> {
-                { "dummy-connection-1", new UserInfo { Name = "Temp User 1" }},
-                { "dummy-connection-2", new UserInfo { Name = "Temp User 2" }},
-            };
-            
-            public string CurrentQuestionTitle { get; private set; }
-            public bool CurrentQuestionActive { get; private set; } 
-            
-            public bool AddUser(string connectionId, string name) 
-            {
-                if (_users.Any(u => u.Value.Name == name))
-                    return false;
-                
-                _users.Add(connectionId, new UserInfo { Name = name });
-                return true;
-            }
-            
-            public bool DeleteUser(string connectionId) 
-            {
-                return _users.Remove(connectionId);
-            }
-            
-            public bool HijackUser(string connectionId, string name) 
-            {
-                var user = _users.SingleOrDefault(u => u.Value.Name == name);
-                
-                if (default(KeyValuePair<string, UserInfo>).Equals(user))
-                    return false;
-                
-                _users.Remove(user.Key);
-                _users.Add(connectionId, user.Value);
-                return true;
-            }
-            
-            public void NewVote(string newQuestionTitle) 
-            {
-                if (this.CurrentQuestionActive) {
-                    throw new InvalidOperationException("Cannot start a new vote, as there is already a vote in progress");
-                }
-                
-                this.CurrentQuestionTitle = newQuestionTitle;
-                this.CurrentQuestionActive = true;
-                _users.Values.ToList().ForEach(v => v.Vote = null);
-            }
-            
-            public void EndVote() 
-            {
-                if (!this.CurrentQuestionActive) {
-                    throw new InvalidOperationException("Cannot end the vote, as there is not an active vote");
-                }
-                
-                this.CurrentQuestionActive = false;
-            }
-            
-            public void Vote(string connectionId, string vote) 
-            {
-                _users[connectionId].Vote = vote;    
-            }
-            
-            public string NameFor(string connectionId)
-            {
-                return _users[connectionId].Name;
-            }
-            
-            public IEnumerable<dynamic> GetVotes() 
-            {
-                return _users.Values.Select(v => new { Name = v.Name, Vote = v.Vote });
-            }
-            
-            public string GetUsersVote(string connectionId) {
-                return _users[connectionId].Vote;
-            }
-            
-            public dynamic GetCurrentStatus() {
-                 return _users.Values
-                    .ToList()
-                    .Select(v => new {
-                        Name = v.Name,
-                        HasVoted = (v.Vote != null)
-                    })
-                    .ToList();
-            }
-        }
-        
-        private static readonly State _state = new State();
+        private static readonly VotingState _state = new VotingState();
         private ILogger<VotingHub> _logger;
         public VotingHub(ILogger<VotingHub> logger) 
         {
@@ -126,10 +31,15 @@ namespace WebAPIApplication.Hubs
         
         public override Task OnDisconnected(bool stopCalled)
         {
-            var userName = CurrentUserName;
-            
-            _state.DeleteUser(Context.ConnectionId);
-            Clients.All.userDisconnected(userName);
+            try 
+            {
+                var userName = CurrentUserName;
+                Clients.All.userDisconnected(userName);
+            } 
+            finally 
+            {
+                _state.TryToDeleteUser(Context.ConnectionId);
+            }
             
             return base.OnDisconnected(stopCalled);
         }
@@ -138,12 +48,12 @@ namespace WebAPIApplication.Hubs
         public dynamic GetCurrentStatus() 
         {
             return new {
-                CurrentQuestion = new {
+                CurrentQuestion = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.NotStarted) ? null : new {
                     Title = _state.CurrentQuestionTitle,
-                    Active = _state.CurrentQuestionActive,
-                    Results = _state.CurrentQuestionActive ? null : _state.GetVotes()
+                    Active = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.Active),
+                    Results = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.Active) ? null : _state.GetVotes()
                 },
-                People = _state.GetCurrentStatus(),
+                People = _state.GetCurrentUsers(),
                 MyCurrentVote = _state.GetUsersVote(Context.ConnectionId)
             };
         }
