@@ -30,6 +30,7 @@ export class Voting {
     this.signalr = signalrConnection
     this.newVote = '';
     this.currentVote = '';
+    this.people = [];
     
     signalrConnection
       .getCurrentStatus()

@@ -1,0 +1,12 @@
+{
+  "Data": {
+    "DefaultConnection": {
+      "ConnectionString": "Server=.;Database=QuickVote;Integrated Security=true;MultipleActiveResultSets=True;"
+    }
+  },
+  "EntityFramework": {
+    "ApplicationDbContext": {
+      "ConnectionStringKey": "Data:DefaultConnection:ConnectionString"
+    }
+  }
+}

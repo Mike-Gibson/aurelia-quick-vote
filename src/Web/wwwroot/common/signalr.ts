@@ -47,19 +47,14 @@ export class SignalRConnection {
         .done(() => {
           // alert('Now connected, connection ID=' + connection.id);          
           this.hub.invoke('login', name)
-            .done((loggedIn: boolean) => {
+            .done(() => {
               //alert('logged in: ' + result);
-              this.loggedIn = loggedIn;
+              this.loggedIn = true;
               this.username = name;
               
-              if (loggedIn) {
-                this.persistedUsername = name;
-                resolve('Logged in');
-                this.eventAggregator.publish(new events.LoggedInEvent());
-              } else {
-                this.connection.stop();
-                reject('Connected, but could not login');
-              }
+              this.persistedUsername = name;
+              resolve('Logged in');
+              this.eventAggregator.publish(new events.LoggedInEvent());
             })
             .fail(error => {            
               //alert('error while logging in - ' + error);

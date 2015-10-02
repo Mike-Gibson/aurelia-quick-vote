@@ -1,23 +1,31 @@
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
+using Microsoft.Data.Entity;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
-using  Microsoft.Framework.Logging;
+using Microsoft.Framework.Logging;
+using WebAPIApplication.Data;
 
 namespace WebAPIApplication
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        private IConfigurationRoot _configuration;
+        public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
         {
+            var builder = new ConfigurationBuilder() // appEnv.ApplicationBasePath
+              .AddJsonFile("config.json")
+              .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
+
+            builder.AddEnvironmentVariables();
+            _configuration = builder.Build();
         }
 
         // This method gets called by a runtime.
         // Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add Cors support to the service
-            services.AddCors();
-            
             services.AddLogging();
             
             services.AddMvc();
@@ -28,6 +36,14 @@ namespace WebAPIApplication
                 options.Hubs.EnableDetailedErrors = true;
                 options.Hubs.EnableJavaScriptProxies = false;
             });
+            
+            // Add EF services to the services container.
+            services.AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<DataContext>(options => options.UseSqlServer(_configuration["Data:DefaultConnection:ConnectionString"]));
+                
+            services.AddScoped<IVotingRepository, VotingRepository>();
+            services.AddScoped<IUnitOfWork>(provider => provider.GetService<DataContext>());
         }
 
         // Configure is called after ConfigureServices is called.
@@ -57,12 +73,6 @@ namespace WebAPIApplication
 //                  });
 //              });
 //              
-            // Enable CORS
-            app.UseCors(policy => policy.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
-            
             // Configure the HTTP request pipeline.
             app.UseStaticFiles();
 

@@ -3,23 +3,28 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Microsoft.AspNet.Mvc": "6.0.0-beta7-*",
+    "Microsoft.AspNet.Mvc": "6.0.0-rc1-*",
+   
+    "Microsoft.AspNet.Cors": "1.0.0-rc1-*",
+    "Microsoft.AspNet.Cors.Core": "1.0.0-rc1-*",
     
-    "Microsoft.AspNet.Cors": "1.0.0-beta7-*",
-    "Microsoft.AspNet.Cors.Core": "1.0.0-beta7-*",
-    
-    "Microsoft.AspNet.Server.IIS": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Server.IIS": "1.0.0-beta8-*",
     "Kestrel": "1.0.0-beta7-*",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta7-*",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-beta7-*",
-    "Microsoft.AspNet.SignalR.Server": "3.0.0-beta7-*",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-beta7-*",
-    "Microsoft.Framework.Logging.Console": "1.0.0-beta7-*"
+    "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-*",
+    "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-*",
+    "Microsoft.AspNet.SignalR.Server": "3.0.0-rc1-*",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-*",
+    "Microsoft.Framework.Logging.Console": "1.0.0-rc1-*",
+    
+    "EntityFramework.SqlServer": "7.0.0-rc1-*",
+    "EntityFramework.Commands": "7.0.0-rc1-*",
+    "Microsoft.Framework.Configuration": "1.0.0-rc1-*",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-rc1-*"    
   },
 
   "commands": {
     "kestrel": "Microsoft.AspNet.Hosting --server Kestrel --config hosting.ini",
-    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --config hosting.ini"
+    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --config hosting.json"
   },
 
   "frameworks": {

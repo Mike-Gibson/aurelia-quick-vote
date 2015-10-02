@@ -2,84 +2,163 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Framework.Logging;
 using System.Threading.Tasks;
+using WebAPIApplication.Data;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace WebAPIApplication.Hubs
 {
     [HubName("voting")]
     public class VotingHub : Hub
     {
-        private static readonly VotingState _state = new VotingState();
+        private readonly IVotingRepository _votingRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private ILogger<VotingHub> _logger;
-        public VotingHub(ILogger<VotingHub> logger) 
+        
+        private static readonly Dictionary<string, string> LoggedInUsers = new Dictionary<string, string>();
+        
+        private string CurrentUserName 
+        {
+            get 
+            {
+                string username;
+                if (LoggedInUsers.TryGetValue(Context.ConnectionId, out username)) 
+                {
+                    return username;
+                } 
+                
+                return null; 
+            }
+        }
+        
+        public VotingHub(ILogger<VotingHub> logger, IVotingRepository votingRepository, IUnitOfWork unitOfWork) 
         {
             _logger = logger;
+            _votingRepository = votingRepository;
+            _unitOfWork = unitOfWork;
+        }
+        
+        public override async Task OnDisconnected(bool stopCalled)
+        {
+            if (LoggedInUsers.ContainsKey(Context.ConnectionId))
+            {
+                var userName = LoggedInUsers[Context.ConnectionId];
+                LoggedInUsers.Remove(Context.ConnectionId);
+                    
+                await _votingRepository.LogoutUser(userName);
+                Clients.All.userDisconnected(userName);                
+    
+                await _unitOfWork.SaveChangesAsync();
+            }
+            
+            await base.OnDisconnected(stopCalled);
         }
 
         [HubMethodName("Login")]
-        public bool Login(string name)
+        public async Task Login(string name)
         {
-            var added = _state.AddUser(Context.ConnectionId, name);
-            var hijacked = added ? false : _state.HijackUser(Context.ConnectionId, name);
-            
-            if (!added && !hijacked) {
-                return false;
-            }
-            
+            await _votingRepository.LoginUser(name);
             Clients.All.userConnected(name);
-            return true;
-        }
-        
-        public override Task OnDisconnected(bool stopCalled)
-        {
-            try 
-            {
-                var userName = CurrentUserName;
-                Clients.All.userDisconnected(userName);
-            } 
-            finally 
-            {
-                _state.TryToDeleteUser(Context.ConnectionId);
-            }
             
-            return base.OnDisconnected(stopCalled);
+            await _unitOfWork.SaveChangesAsync();
+            
+            if (!LoggedInUsers.ContainsKey(Context.ConnectionId)) 
+            {
+                LoggedInUsers.Add(Context.ConnectionId, name);
+            }
         }
         
         [HubMethodName("GetCurrentStatus")]
-        public dynamic GetCurrentStatus() 
+        public async Task<dynamic> GetCurrentStatus() 
         {
+            var currentQuestion = await _votingRepository.GetCurrentQuestion();
+            
+            var users = await _votingRepository.GetUsers();
+            var myVote = currentQuestion == null ? 
+                null : 
+                currentQuestion.Votes
+                    .Where(v => v.User.Name == CurrentUserName)
+                    .Select(v => v.Vote)
+                    .SingleOrDefault();
+            var questionVotes = currentQuestion == null ?
+                Enumerable.Empty<QuestionVote>() : 
+                currentQuestion.Votes;
+            
             return new {
-                CurrentQuestion = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.NotStarted) ? null : new {
-                    Title = _state.CurrentQuestionTitle,
-                    Active = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.Active),
-                    Results = (_state.CurrentQuestionStatus == VotingState.QuestionStatus.Active) ? null : _state.GetVotes()
-                },
-                People = _state.GetCurrentUsers(),
-                MyCurrentVote = _state.GetUsersVote(Context.ConnectionId)
+                CurrentQuestion = currentQuestion == null ? 
+                    null : 
+                    new {
+                        Title = currentQuestion.Title,
+                        Active = !currentQuestion.HasFinished,
+                        Results = (!currentQuestion.HasFinished) ? Enumerable.Empty<dynamic>() : GetResults(currentQuestion)
+                    },
+                People = users
+                    .Select(u => new { Name = u.Name, HasVoted = questionVotes.Any(qv => qv.UserId == u.Id && qv.Vote != null) }),
+                MyCurrentVote = myVote
             };
         }
         
-        public string CurrentUserName 
+        [HubMethodName("Vote")]
+        public async Task Vote(string vote) 
         {
-            get { return _state.NameFor(Context.ConnectionId); }
-        }
-        
-        public void Vote(string vote) 
-        {
-            _state.Vote(Context.ConnectionId, vote);
+            var currentQuestion = await _votingRepository.GetCurrentQuestion();
+            
+            await _votingRepository.Vote(currentQuestion, CurrentUserName, vote);
+            await _unitOfWork.SaveChangesAsync();
+            
             Clients.All.userVoted(CurrentUserName);
         }
         
-        public void StartVote(string questionTitle)
+        [HubMethodName("StartVote")]
+        public async Task StartVote(string questionTitle)
         {
-            _state.NewVote(questionTitle);
+            var currentQuestion = await _votingRepository.GetCurrentQuestion();            
+            if (currentQuestion != null && !currentQuestion.HasFinished)
+            {
+                throw new InvalidOperationException("Cannot start a new vote, as there is already a vote in progress");
+            }
+            
+            _votingRepository.AddQuestion(new Question {
+                Id = Guid.NewGuid(),
+                Title = questionTitle,
+                DateCreated = DateTimeOffset.Now,
+                HasFinished = false
+            });
+            await _unitOfWork.SaveChangesAsync();
+            
             Clients.All.voteStarted(questionTitle);
         }
         
-        public void EndVote()
+        [HubMethodName("EndVote")]
+        public async Task EndVote()
         {
-            _state.EndVote();
-            var allVotes = _state.GetVotes();
+            var currentQuestion = await _votingRepository.GetCurrentQuestion();
+            
+            if (currentQuestion == null || currentQuestion.HasFinished)
+            {
+                throw new InvalidOperationException("Cannot end the vote, as there is not an active vote");
+            }
+            
+            currentQuestion.HasFinished = true;            
+            await _unitOfWork.SaveChangesAsync();
+            
+            var allVotes = GetResults(currentQuestion);
+            
             Clients.All.voteEnded(allVotes);
+        }
+        
+        private IEnumerable<dynamic> GetResults(Question question) 
+        {
+            if (question == null)
+                return Enumerable.Empty<dynamic>();
+            
+            return question
+                .Votes
+                .Select(v => new {
+                    Name = v.User.Name, 
+                    Vote = v.Vote
+                });
         }
     }
 }
