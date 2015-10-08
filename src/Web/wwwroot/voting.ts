@@ -152,7 +152,7 @@ interface IQuestionResult {
   result: string;
 }
 
-interface IPerson {
+export interface IPerson {
   name: string;
   hasVoted: boolean;
 }

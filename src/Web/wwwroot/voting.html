@@ -1,4 +1,6 @@
 <template>
+  <require from="custom-elements\user-list"></require>
+  
   <div class="app-row" style="top: 0; bottom: 0">
     
     <div class="app-col padded" style="left: 0; width: 75%">
@@ -77,59 +79,8 @@
       
     </div>
     
-    <style>
-      ul.user-list {
-        overflow: auto;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        background-color: white;
-      }
-      
-      ul.user-list li {
-        
-        margin: 0px;
-        border-bottom: 1px solid #ddd;
-        
-      }
-      
-      ul.user-list li > .vote {
-        display: inline-block;        
-        height: 100%;
-        margin-left: 12px;
-        background-color: green;
-        border-radius: 4px;
-        width: 20px;
-      }
-      
-      ul.user-list li > .vote-voted {        
-        background-color: green;
-      }
-      
-      ul.user-list li > .vote-notvoted {        
-        background-color: orange;
-      }
-      
-      ul.user-list li > .name {
-        display: inline-block;
-        margin: 0px;
-        padding: 12px;
-      }  
-      
-    </style>
-    
     <div class="app-col padded" style="width: 25%; right: 0">
-      
-      <div class="panel panel-default" style="height: 100%; overflow: hidden;">
-        <div class="panel-body scroll-y" style="height: 100%; padding: 0; background-color: #fefefe">
-          <ul class="user-list">
-            <li repeat.for="person of people">
-              <span class.bind="'vote ' + (person.hasVoted ? 'vote-voted' : 'vote-notvoted')">&nbsp;</span>
-              <span class="name">${person.name}</span>
-            </li>
-          </ul>
-      </div>
-      
+      <user-list users.bind="people"></user-list>
     </div>
     
   </div>
