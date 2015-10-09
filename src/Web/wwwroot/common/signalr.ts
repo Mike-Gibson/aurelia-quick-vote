@@ -70,6 +70,22 @@ export class SignalRConnection {
     return promise;
   }
   
+  logout() {
+    if (!this.loggedIn) {
+      throw new Error('Not logged in');
+    }
+    
+    return this.hub.invoke('logout')
+      .then(() => {
+        this.loggedIn = false;
+        this.username = '';
+        this.persistedUsername = null;
+      })
+      .fail(function (error) {
+        alert('error while logging out - ' + error);
+      });
+  }
+  
   getCurrentStatus(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.hub.invoke('getCurrentStatus')
@@ -134,6 +150,11 @@ export class SignalRConnection {
   
   private set persistedUsername(value: string) {
     localStorage.setItem('username', value);
+    
+    if (value == null) {
+      localStorage.removeItem('username');
+      return;
+    }
   }
   
   private attemptAutoLogin() {

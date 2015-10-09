@@ -69,6 +69,20 @@ namespace WebAPIApplication.Hubs
             }
         }
         
+        [HubMethodName("Logout")]
+        public async Task Logout()
+        {
+            await _votingRepository.LogoutUser(CurrentUserName);
+            Clients.All.userDisconnected(CurrentUserName);
+            
+            await _unitOfWork.SaveChangesAsync();
+            
+            if (LoggedInUsers.ContainsKey(Context.ConnectionId)) 
+            {
+                LoggedInUsers.Remove(Context.ConnectionId);
+            }
+        }
+        
         [HubMethodName("GetCurrentStatus")]
         public async Task<dynamic> GetCurrentStatus() 
         {

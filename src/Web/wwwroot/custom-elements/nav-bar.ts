@@ -22,6 +22,7 @@ export class NavBar {
   } 
   
   logout() {
-    alert('Not Implemented');
+    this.signalr.logout()
+      .then(() => this.router.navigate('login'));
   } 
 }
