@@ -94,7 +94,7 @@ namespace WebAPIApplication.Hubs
                 currentQuestion.Votes
                     .Where(v => v.User.Name == CurrentUserName)
                     .Select(v => v.Vote)
-                    .SingleOrDefault();
+                    .FirstOrDefault();
             var questionVotes = currentQuestion == null ?
                 Enumerable.Empty<QuestionVote>() : 
                 currentQuestion.Votes;

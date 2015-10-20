@@ -3,18 +3,20 @@ using Microsoft.AspNet.Hosting;
 using Microsoft.Data.Entity;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Framework.Configuration;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using WebAPIApplication.Data;
+using Microsoft.Framework.DependencyInjection;
 
 namespace WebAPIApplication
 {
     public class Startup
     {
         private IConfigurationRoot _configuration;
+        
         public Startup(IHostingEnvironment env, IApplicationEnvironment appEnv)
         {
-            var builder = new ConfigurationBuilder() // appEnv.ApplicationBasePath
+            var builder = new ConfigurationBuilder()
+              .SetBasePath(appEnv.ApplicationBasePath)
               .AddJsonFile("config.json")
               .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
 
@@ -73,6 +75,10 @@ namespace WebAPIApplication
 //                  });
 //              });
 //              
+
+            // Add the platform handler to the request pipeline.
+            app.UseIISPlatformHandler();
+            
             // Configure the HTTP request pipeline.
             app.UseStaticFiles();
 
