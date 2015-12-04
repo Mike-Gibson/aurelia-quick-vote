@@ -13,6 +13,7 @@ namespace WebAPIApplication.Data
 		public Guid Id { get; set; }
 		public string Name { get; set; }
 		public bool LoggedIn { get; set; }
+		public bool IsAdmin { get; set; }
 	}
 	
 	public class Question
@@ -46,12 +47,22 @@ namespace WebAPIApplication.Data
 		public virtual User User { get; set; }
 	}
 	
+	public class LoginResult 
+	{
+		public bool IsAdmin { get; private set; }
+		
+		public LoginResult(bool isAdmin) 
+		{
+			IsAdmin = isAdmin;
+		}
+	}
+	
 	public interface IVotingRepository
 	{
 		Task<IEnumerable<User>> GetUsers();
 		Task<Question> GetCurrentQuestion();
 		void AddQuestion(Question question);
-		Task LoginUser(string name);
+		Task<LoginResult> LoginUser(string name);
 		Task LogoutUser(string name);
 		Task Vote(Question question, string userName, string vote);
 	}
@@ -72,19 +83,22 @@ namespace WebAPIApplication.Data
 				.ToListAsync();
 		}
 		
-		public async Task LoginUser(string name)
+		public async Task<LoginResult> LoginUser(string name)
 		{
 			var user = await _context.Users.SingleOrDefaultAsync(u => u.Name == name);
 			
 			if (user == null) {
 				user = new User {
 					Id = Guid.NewGuid(),
-					Name = name
+					Name = name,
+					IsAdmin = false
 				};
 				_context.Users.Add(user);
 			}
 			
 			user.LoggedIn = true;
+			
+			return new LoginResult(user.IsAdmin);
 		}
 		
 		public async Task LogoutUser(string name)
@@ -104,11 +118,6 @@ namespace WebAPIApplication.Data
 				.FirstOrDefaultAsync();
 		}
 		
-		public async Task<int> SaveChangesAsync() 
-		{
-			return await _context.SaveChangesAsync();
-		}
-
         public void AddQuestion(Question question)
         {
             _context.Questions.Add(question);
@@ -125,7 +134,7 @@ namespace WebAPIApplication.Data
 				{
 					Id = Guid.NewGuid(),
 					User = user,
-					Vote = vote					
+					Vote = vote
 				};
 			}
 			

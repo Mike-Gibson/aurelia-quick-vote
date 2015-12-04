@@ -56,9 +56,9 @@ namespace WebAPIApplication.Hubs
         }
 
         [HubMethodName("Login")]
-        public async Task Login(string name)
+        public async Task<dynamic> Login(string name)
         {
-            await _votingRepository.LoginUser(name);
+            var result = await _votingRepository.LoginUser(name);
             Clients.All.userConnected(name);
             
             await _unitOfWork.SaveChangesAsync();
@@ -67,6 +67,8 @@ namespace WebAPIApplication.Hubs
             {
                 LoggedInUsers.Add(Context.ConnectionId, name);
             }
+            
+            return result;
         }
         
         [HubMethodName("Logout")]
