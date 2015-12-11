@@ -4,7 +4,11 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Data.Entity;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+
+using Microsoft.Data.Entity.Metadata;
 
 namespace WebAPIApplication.Data
 {
@@ -34,10 +38,10 @@ namespace WebAPIApplication.Data
 	{
 		public Guid Id { get; set; }
 		
-		[Index("UC_QuestionID_UserID", 1, IsUnique = true)]
+		//[Index("UC_QuestionID_UserID", 1, IsUnique = true)]
 		public Guid QuestionId { get; set; }
 		
-		[Index("UC_QuestionID_UserID", 2, IsUnique = true)]
+		//[Index("UC_QuestionID_UserID", 2, IsUnique = true)]
 		public Guid UserId { get; set; }
 		
 		public string Vote { get; set; }

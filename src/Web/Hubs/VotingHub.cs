@@ -1,6 +1,6 @@
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using WebAPIApplication.Data;
 using System;
